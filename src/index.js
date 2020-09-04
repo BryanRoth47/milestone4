@@ -4,32 +4,35 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import Phaser from 'phaser';
-import { instantiate } from '@ardentlabs/ardent-script';
-import { additionOptions } from './templates/addition';
+import MenuScene from './scenes/MenuScene';
+import DoorScene from './scenes/DoorScene';
 
 var config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
   canvas: document.getElementById('phaser-game'),
-  scene: {
+  scene: [MenuScene, DoorScene]/*{
     preload: preload,
     create: create,
     update: update
   }
+  */
 };
 
 var game = new Phaser.Game(config);
-var keyEnter;
-var textEntry;
+//var keyEnter;
+//var textEntry;
 
+/*
 function preload() {
   this.load.spritesheet('door-openAnimation', 'https://i.imgur.com/qYVPd8T.png', { frameWidth: 640, frameHeight: 640, endFrame: 19 });
 
 }
+*/
 
 
-
+/*
 function create() {
   // function that sets up the animation for opening the door
   var doorGif = createDoorAnimation(this);
@@ -56,7 +59,8 @@ function create() {
   });
 
 }
-
+*/
+/*
 function update() {
   if (Phaser.Input.Keyboard.JustDown(keyEnter)) {
     textEntry.text = '';
@@ -69,8 +73,9 @@ function update() {
 
   }
 }
+*/
 
-
+/*
 function createDoorAnimation(phaserGame) {
   var config = {
     key: 'openDoor',
@@ -92,6 +97,17 @@ function createAnswerField(phaserGame) {
   phaserGame.add.text(10, 10, 'Answer:', { font: '32px Courier', fill: '#ffffff' });
   textEntry = phaserGame.add.text(10, 50, '', { font: '32px Courier', fill: '#ffff00' });
   keyEnter = phaserGame.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+}
+
+*/
+function openLock(player, lock) {
+  /*
+    //try this??
+      function collectStar (player, star)
+      {
+        star.disableBody(true, true);
+      }
+  */
 }
 
 ReactDOM.render(
