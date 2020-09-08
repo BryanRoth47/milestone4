@@ -8,7 +8,7 @@ import MenuScene from './scenes/MenuScene';
 import DoorScene from './scenes/DoorScene';
 
 var config = {
-  type: Phaser.AUTO,
+  type: Phaser.CANVAS,
   width: 800,
   height: 600,
   canvas: document.getElementById('phaser-game'),

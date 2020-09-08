@@ -26,7 +26,7 @@ var MenuScene = new Phaser.Class({
 
         this.input.keyboard.once('keyup_ONE', function () {
 
-            this.scene.start('doorScene', { problemType: [additionOptions], level: 1, currentScore: 0 });
+            this.scene.start('doorScene', { problemType: [additionOptions], level: 6, currentScore: 0 });
 
         }, this);
 

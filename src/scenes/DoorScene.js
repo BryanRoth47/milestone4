@@ -35,7 +35,14 @@ var DoorScene = new Phaser.Class({
     },
 
     preload: function () {
-        this.load.spritesheet('door-openAnimation', 'https://i.imgur.com/qYVPd8T.png', { frameWidth: 640, frameHeight: 640, endFrame: 19 });
+        // door with blue animation
+        //this.load.spritesheet('door-openAnimation', 'https://i.imgur.com/qYVPd8T.png', { frameWidth: 640, frameHeight: 640, endFrame: 19 });
+        //door with yellow animation
+        this.load.spritesheet('door-openAnimation', 'https://i.imgur.com/gmsX0UV.png', { frameWidth: 640, frameHeight: 640, endFrame: 48 });
+        // unlocking animation
+        this.load.spritesheet('lock-animation', 'https://i.imgur.com/Ni1Kr3F.png', { frameWidth: 640, frameHeight: 640, endFrame: 61 })
+
+        // lock animation
     },
 
     create: function () {
@@ -45,29 +52,14 @@ var DoorScene = new Phaser.Class({
         // function that creates the input field
         this.createTextFields();
 
-        /*
         this.input.once('pointerdown', function () {
             doorGif.play('openDoor');
         });
-        */
 
-        // setup text input keystrokes
-        this.input.keyboard.on('keydown', function (event) {
-            // backspace - delete the last character
-            if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.BACKSPACE && answerField.text.length > 0) {
-                answerField.text = answerField.text.substr(0, answerField.text.length - 1);
-            }
-            // otherwise if its a negative sign or a valid number, add it to the field
-            else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.NUMPAD_SUBTRACT ||
-                event.keyCode === Phaser.Input.Keyboard.KeyCodes.MINUS ||
-                (event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) {
-                answerField.text += event.key;
-            }
+        // create the locks
+        //this.locksArr = this.createLocksArr();
 
-        });
-
-        this.locksArr = this.createLocksArr();
-        this.currentQuestionToSolve = this.createAndRenderQuestion();
+        this.createAndRenderQuestion();
 
     },
 
@@ -76,8 +68,15 @@ var DoorScene = new Phaser.Class({
             if (this.isAnswerCorrect()) {
                 alert("correct");
                 this.unlockLock();
+                if(this.numLocksRemaining === 0){
+                    alert('done');
+                }
+                else{
+                    this.createAndRenderQuestion();
+                }
             }
             else {
+                alert('wrong');
                 // handle an incorrect answer   
             }
             answerField.text = '';
@@ -97,20 +96,39 @@ var DoorScene = new Phaser.Class({
         // create the answer field
         answerField = this.add.text(10, 50, '', { font: '32px Courier', fill: '#ffff00' });
 
+        this.registerKeystrokes();
+    },
+
+    registerKeystrokes: function () {
+        // setup text input keystrokes
+        this.input.keyboard.on('keydown', function (event) {
+            // backspace - delete the last character
+            if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.BACKSPACE && answerField.text.length > 0) {
+                answerField.text = answerField.text.substr(0, answerField.text.length - 1);
+            }
+            // otherwise if its a negative sign or a valid number, add it to the field
+            else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.NUMPAD_SUBTRACT ||
+                event.keyCode === Phaser.Input.Keyboard.KeyCodes.MINUS ||
+                event.keyCode === Phaser.Input.Keyboard.KeyCodes.PERIOD ||
+                (event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) {
+                answerField.text += event.key;
+            }
+
+        });
     },
 
     createDoorAnimation: function () {
         var config = {
             key: 'openDoor',
-            frames: this.anims.generateFrameNumbers('door-openAnimation', { start: 0, end: 18 }),
-            frameRate: 19
+            frames: this.anims.generateFrameNumbers('door-openAnimation', { start: 0, end: 48 }),
+            frameRate: 30
         };
 
         this.anims.create(config);
 
         var doorGif = this.add.sprite(400, 300, 'door-openAnimation');
 
-        doorGif.displayWidth = 300;
+        doorGif.displayWidth = 500;
         doorGif.scaleY = doorGif.scaleX;
 
         return doorGif;
@@ -122,31 +140,50 @@ var DoorScene = new Phaser.Class({
         const templateIndex = Math.floor((Math.random() * chosenOperation.length));
         let questionToReturn = instantiate(chosenOperation[templateIndex].template);
         questionField.text = questionToReturn.questionText;
+        this.currentQuestionToSolve = questionToReturn;
         return questionToReturn;
     },
 
     // creates an array of a number of lock images
     createLocksArr: function () {
         for (let i = 0; i < this.numLocksRemaining; i++) {
-            let xCoord = i;
-            let yCoord = i;
-            this.locksArr.push(this.createLock(xCoord, yCoord));
+            let xCoord = ((i%2)==0)?100:400;
+            let yCoord = 100*i;
+            this.locksArr.push(this.createLock(i, xCoord, yCoord));
         }
     },
 
     // create an individual lock image
-    createLock: function (xCoord, yCoord) {
-        return {
-            'x': xCoord,
-            'y': yCoord
+    createLock: function (index, xCoord, yCoord) {
+        console.log('x:',xCoord,'y:',yCoord);
+        var config = {
+            key: 'lock' + index,
+            frames: this.anims.generateFrameNumbers('lock-animation', { start: 0, end: 60 }),
+            frameRate: 60
         };
+        console.log(config);
+        this.anims.create(config);
+
+        var lockGif = this.add.sprite(xCoord, yCoord, 'lock-animation');
+
+        lockGif.displayWidth = 200;
+        lockGif.scaleY = lockGif.scaleX;
+
+        return lockGif;
     },
 
     //checks if the submitted answer is correct
     isAnswerCorrect: function () {
+        /*
         console.log("question:", this.currentQuestionToSolve);
+        console.log('type:',typeof this.currentQuestionToSolve.solutionValue);
         console.log("answer:", answerField.text);
+        console.log('type:',typeof answerField.text);
         console.log('returning:',answerField.text === this.currentQuestionToSolve.solutionValue);
+        */
+        if (typeof this.currentQuestionToSolve.solutionValue === 'number') {
+            return (parseFloat(answerField.text) === this.currentQuestionToSolve.solutionValue)
+        }
         return (answerField.text === this.currentQuestionToSolve.solutionValue)
     },
 
