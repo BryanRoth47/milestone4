@@ -1,4 +1,9 @@
 import Phaser from 'phaser';
+//ArdentScript
+import { additionOptions } from '../templates/addition';
+import { subtractionOptions } from '../templates/subtraction';
+import { multiplicationOptions } from '../templates/multiplication';
+import { divisionOptions } from '../templates/division';
 
 var MenuScene = new Phaser.Class({
 
@@ -21,31 +26,35 @@ var MenuScene = new Phaser.Class({
 
         this.input.keyboard.once('keyup_ONE', function () {
 
-            this.scene.start('doorScene', { problemType: 1, level:1, currentScore: 0 });
+            this.scene.start('doorScene', { problemType: [additionOptions], level: 1, currentScore: 0 });
 
         }, this);
 
         this.input.keyboard.once('keyup_TWO', function () {
 
-            this.scene.start('doorScene', { problemType: 2, level:1, currentScore: 0 });
+            this.scene.start('doorScene', { problemType: [subtractionOptions], level: 1, currentScore: 0 });
 
         }, this);
 
         this.input.keyboard.once('keyup_THREE', function () {
 
-            this.scene.start('doorScene', { problemType: 3, level:1, currentScore: 0 });
+            this.scene.start('doorScene', { problemType: [multiplicationOptions], level: 1, currentScore: 0 });
 
         }, this);
 
         this.input.keyboard.once('keyup_FOUR', function () {
 
-            this.scene.start('doorScene', { problemType: 4, level:1, currentScore: 0 });
+            this.scene.start('doorScene', { problemType: [divisionOptions], level: 1, currentScore: 0 });
 
         }, this);
 
         this.input.keyboard.once('keyup_FIVE', function () {
 
-            this.scene.start('doorScene', { problemType: 5, level:1, currentScore: 0 });
+            this.scene.start('doorScene', {
+                problemType: [additionOptions, subtractionOptions, multiplicationOptions, divisionOptions],
+                level: 1,
+                currentScore: 0
+            });
 
         }, this);
 
