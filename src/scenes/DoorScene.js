@@ -5,6 +5,7 @@ const MAX_LOCKS = 6;
 
 var questionField;
 var answerField;
+var timerField;
 var keyEnter;
 
 
@@ -32,6 +33,10 @@ var DoorScene = new Phaser.Class({
         this.locksArr = [];
         // holds the current question
         this.currentQuestionToSolve = null;
+        // tracks the starting amount of time
+        this.startingTime = 0;
+        // round timer
+        this.roundTimer = null;
     },
 
     preload: function () {
@@ -40,9 +45,7 @@ var DoorScene = new Phaser.Class({
         //door with yellow animation
         this.load.spritesheet('door-openAnimation', 'https://i.imgur.com/gmsX0UV.png', { frameWidth: 640, frameHeight: 640, endFrame: 48 });
         // unlocking animation
-        this.load.spritesheet('lock-animation', 'https://i.imgur.com/Ni1Kr3F.png', { frameWidth: 640, frameHeight: 640, endFrame: 61 })
-
-        // lock animation
+        this.load.spritesheet('lock-animation', 'https://i.imgur.com/Ni1Kr3F.png', { frameWidth: 640, frameHeight: 640, endFrame: 61 });
     },
 
     create: function () {
@@ -58,9 +61,10 @@ var DoorScene = new Phaser.Class({
 
         // create the locks
         //this.locksArr = this.createLocksArr();
-
+        // generate the initial question
         this.createAndRenderQuestion();
-
+        // start the round timer
+        this.startTimer();
     },
 
     update: function () {
@@ -68,10 +72,12 @@ var DoorScene = new Phaser.Class({
             if (this.isAnswerCorrect()) {
                 alert("correct");
                 this.unlockLock();
-                if(this.numLocksRemaining === 0){
+                if (this.numLocksRemaining === 0) {
+                    this.roundTimer.clearPendingEvents();
                     alert('done');
+
                 }
-                else{
+                else {
                     this.createAndRenderQuestion();
                 }
             }
@@ -79,8 +85,11 @@ var DoorScene = new Phaser.Class({
                 alert('wrong');
                 // handle an incorrect answer   
             }
-            answerField.text = '';
+            answerField.setText = '';
         }
+        let time = this.startingTime - this.roundTimer.getElapsedSeconds();
+        time = (time < 10) ? time.toPrecision(3) : time.toPrecision(4);
+        timerField.setText('Time: ' + time);
     },
 
     shutdown: function () {
@@ -91,11 +100,13 @@ var DoorScene = new Phaser.Class({
     createTextFields: function () {
         // create the question field
         questionField = this.add.text(10, 10, '', { font: '32px Courier', fill: '#ffffff' });
-        // register the enter key with Phaser to simplify submitting answers
-        keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+        questionField.removeInteractive();
         // create the answer field
         answerField = this.add.text(10, 50, '', { font: '32px Courier', fill: '#ffff00' });
-
+        // create the timer field -- will be filled in startTimer();
+        timerField = this.add.text(10, 100, '', { font: '32px Courier', fill: 'red' });
+        timerField.removeInteractive();
+        // registers the allowed keystrokes for the input fields
         this.registerKeystrokes();
     },
 
@@ -115,6 +126,8 @@ var DoorScene = new Phaser.Class({
             }
 
         });
+        // register the enter key with Phaser to simplify submitting answers
+        keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     },
 
     createDoorAnimation: function () {
@@ -139,23 +152,23 @@ var DoorScene = new Phaser.Class({
         const chosenOperation = this.problemType.length === 1 ? this.problemType[0] : Math.floor((Math.random() * this.problemType.length));
         const templateIndex = Math.floor((Math.random() * chosenOperation.length));
         let questionToReturn = instantiate(chosenOperation[templateIndex].template);
-        questionField.text = questionToReturn.questionText;
+        questionField.setText(questionToReturn.questionText);
         this.currentQuestionToSolve = questionToReturn;
-        return questionToReturn;
+        //return questionToReturn;
     },
 
     // creates an array of a number of lock images
     createLocksArr: function () {
         for (let i = 0; i < this.numLocksRemaining; i++) {
-            let xCoord = ((i%2)==0)?100:400;
-            let yCoord = 100*i;
+            let xCoord = ((i % 2) == 0) ? 100 : 400;
+            let yCoord = 100 * i;
             this.locksArr.push(this.createLock(i, xCoord, yCoord));
         }
     },
 
     // create an individual lock image
     createLock: function (index, xCoord, yCoord) {
-        console.log('x:',xCoord,'y:',yCoord);
+        console.log('x:', xCoord, 'y:', yCoord);
         var config = {
             key: 'lock' + index,
             frames: this.anims.generateFrameNumbers('lock-animation', { start: 0, end: 60 }),
@@ -182,13 +195,25 @@ var DoorScene = new Phaser.Class({
         console.log('returning:',answerField.text === this.currentQuestionToSolve.solutionValue);
         */
         if (typeof this.currentQuestionToSolve.solutionValue === 'number') {
-            return (parseFloat(answerField.text) === this.currentQuestionToSolve.solutionValue)
+            return (parseFloat(answerField.text) === this.currentQuestionToSolve.solutionValue);
         }
-        return (answerField.text === this.currentQuestionToSolve.solutionValue)
+        return (answerField.text === this.currentQuestionToSolve.solutionValue);
     },
 
     unlockLock: function () {
         this.numLocksRemaining--;
+        // increase score here
+    },
+
+    startTimer: function () {
+        // game starts with 6 seconds on the clock, takes off 5 every round
+        this.startingTime = 60 - ((this.currentLevel - 1) * 5);
+        alert(this.startingTime);
+        this.roundTimer = this.time.delayedCall(this.startingTime * 1000, this.endGame, [], this);
+    },
+
+    endGame: function () {
+        alert('time expired');
     }
 });
 
