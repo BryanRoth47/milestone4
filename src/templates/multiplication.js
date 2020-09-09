@@ -1,4 +1,4 @@
-"use strict";
+//"use strict";
 exports.__esModule = true;
 exports.multiplicationOptions = void 0;
 exports.multiplicationOptions = [

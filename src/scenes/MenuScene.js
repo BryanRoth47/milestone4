@@ -16,35 +16,34 @@ var MenuScene = new Phaser.Class({
         },
 
     create: function () {
-        this.add.text(10, 10, 'Choose your questions:', { font: '16px Courier', fill: '#00ff00' });
-        this.add.text(10, 25, '1. Addition:', { font: '12px Courier', fill: '#00ff00' });
-        this.add.text(10, 40, '2. Subtraction:', { font: '12px Courier', fill: '#00ff00' });
-        this.add.text(10, 55, '3. Multiplication:', { font: '12px Courier', fill: '#00ff00' });
-        this.add.text(10, 70, '4. Division:', { font: '12px Courier', fill: '#00ff00' });
-        this.add.text(10, 85, '5. All of the above:', { font: '12px Courier', fill: '#00ff00' });
-
+        this.add.text(10, 10, 'Choose your questions:'+
+                              '\n1. Addition'+
+                              '\n2. Subtraction'+
+                              '\n3. Multiplication'+
+                              '\n4. Division'+
+                              '\n5. All of the above', { font: '24px Courier', fill: '#00ff00' });
 
         this.input.keyboard.once('keyup_ONE', function () {
 
-            this.scene.start('doorScene', { problemType: [additionOptions], level: 6, currentScore: 0 });
+            this.scene.start('doorScene', { problemType: [additionOptions], level: 1, score: 0 });
 
         }, this);
 
         this.input.keyboard.once('keyup_TWO', function () {
 
-            this.scene.start('doorScene', { problemType: [subtractionOptions], level: 1, currentScore: 0 });
+            this.scene.start('doorScene', { problemType: [subtractionOptions], level: 1, score: 0 });
 
         }, this);
 
         this.input.keyboard.once('keyup_THREE', function () {
 
-            this.scene.start('doorScene', { problemType: [multiplicationOptions], level: 1, currentScore: 0 });
+            this.scene.start('doorScene', { problemType: [multiplicationOptions], level: 1, score: 0 });
 
         }, this);
 
         this.input.keyboard.once('keyup_FOUR', function () {
 
-            this.scene.start('doorScene', { problemType: [divisionOptions], level: 1, currentScore: 0 });
+            this.scene.start('doorScene', { problemType: [divisionOptions], level: 1, score: 0 });
 
         }, this);
 
@@ -53,7 +52,7 @@ var MenuScene = new Phaser.Class({
             this.scene.start('doorScene', {
                 problemType: [additionOptions, subtractionOptions, multiplicationOptions, divisionOptions],
                 level: 1,
-                currentScore: 0
+                score: 0
             });
 
         }, this);
