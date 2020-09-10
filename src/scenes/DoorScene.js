@@ -21,8 +21,8 @@ var DoorScene = new Phaser.Class({
         this.problemType = data.problemType;
         // tracks the cumulative score
         this.currentScore = data.score;
-        // determine how many locks this level will have
-        this.numLocksRemaining = this.currentLevel <= MAX_LOCKS ? this.currentLevel : MAX_LOCKS;
+        // tracks how many locks were originally created
+        this.startingLocks = this.currentLevel <= MAX_LOCKS ? this.currentLevel : MAX_LOCKS;
         // create an empty array to hold the locks
         this.locksArr = [];
         // holds the door animation object
@@ -48,24 +48,23 @@ var DoorScene = new Phaser.Class({
     preload: function () {
         // door with blue animation
         //this.load.spritesheet('door-openAnimation', 'https://i.imgur.com/r6sxy7Z.png', { frameWidth: 640, frameHeight: 640, endFrame: 19 });
-        //door with yellow animation
+        // door with yellow animation
         this.load.spritesheet('door-openAnimation', 'https://i.imgur.com/bQVzDVV.png', { frameWidth: 640, frameHeight: 640, endFrame: 48 });
         // unlocking animation
         this.load.spritesheet('lock-animation', 'https://i.imgur.com/CqHC7Ac.png', { frameWidth: 640, frameHeight: 640, endFrame: 61 });
+        // background image
+        this.load.image('background', 'https://i.imgur.com/M5mzR72.jpg');
     },
 
     create: function () {
+        // display the background image
+        this.add.image(400,300,'background');
+
         // function that sets up the animation for opening the door
         this.createDoorAnimation();
 
         // function that creates the input field
         this.createTextFields();
-
-        /*
-        this.input.once('pointerdown', function () {
-            doorGif.play('openDoor');
-        });
-        */
 
         // create the locks
         this.createLocksArr();
@@ -76,30 +75,16 @@ var DoorScene = new Phaser.Class({
         // start the round timer
         this.startTimer();
 
+        // ensure the scene shuts down correctly
+        this.events.on('shutdown', this.shutdown, this);
     },
 
     update: function () {
-        
-        if (Phaser.Input.Keyboard.JustDown(this.keyEnter)) {
-            if (this.isAnswerCorrect()) {
-                this.unlockLock();
-                if (this.numLocksRemaining === 0) {
-                    this.roundTimer.remove();
-                    this.doorGif.play('openDoor');
-                }
-                else {
-                    this.createAndRenderQuestion();
-                }
-            }
-            else {
-                alert('wrong');
-                // handle an incorrect answer   
-            }
-            this.answerField.setText('');
-        }
+        // render the time remaining
         let time = this.startingTime - this.roundTimer.getElapsedSeconds();
+        // ensure the timer renders in the same location regardless of how much time is left
         time = (time < 10) ? time.toPrecision(3) : time.toPrecision(4);
-        this.timerField.setText('Time: ' + time);
+        this.timerField.setText('Timer:' + time);
     },
 
     shutdown: function () {
@@ -114,20 +99,43 @@ var DoorScene = new Phaser.Class({
         // create the answer field
         this.answerField = this.add.text(10, 50, '', { font: '32px Courier', fill: '#ffff00' });
         // create the timer field -- will be filled in startTimer();
-        this.timerField = this.add.text(550, 10, '', { font: '32px Courier', fill: 'red' });
+        this.timerField = this.add.text(575, 10, '', { font: '32px Courier', fill: 'red' });
         this.timerField.removeInteractive();
         // create the field to display the score
-        this.scoreField = this.add.text(550, 50, 'Score: ' + this.currentScore, { font: '32px Courier', fill: 'red' });
+        this.scoreField = this.add.text(575, 50, 'Score:' + this.currentScore, { font: '32px Courier', fill: 'red' });
         this.scoreField.removeInteractive();
+        // display instructions for the player
+        this.add.text(200, 525, 'Press Enter to submit answers' +
+                                '\n Unlock all locks to advance', { font: '24px Courier', fill: '#00ff00' });
         // registers the allowed keystrokes for the input fields
         this.registerKeystrokes();
     },
 
     registerKeystrokes: function () {
-        // setup text input keystrokes
+        // create listeners for input keystrokes
         this.input.keyboard.on('keydown', function (event) {
+            // enter - submit answer
+            if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER && this.answerField.text.length > 0) {
+                const answerIsCorrect = (parseFloat(this.answerField.text) === this.currentQuestionToSolve.solutionValue);
+                if (answerIsCorrect) {
+                    // unlock the next lock
+                    this.unlockLock();
+                    // increase score
+                    this.currentScore += 10 * this.currentLevel;
+                    this.scoreField.setText('Score: ' + this.currentScore);
+                    // if there are more locks left, generate a new question
+                    if (this.locksArr.length > 0) {
+                        this.createAndRenderQuestion();
+                    }
+                }
+                else {
+                    alert('wrong');
+                    // handle an incorrect answer   
+                }
+                this.answerField.setText('');
+            }
             // backspace - delete the last character
-            if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.BACKSPACE && this.answerField.text.length > 0) {
+            else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.BACKSPACE && this.answerField.text.length > 0) {
                 this.answerField.text = this.answerField.text.substr(0, this.answerField.text.length - 1);
             }
             // otherwise if its a negative sign or a valid number, add it to the field
@@ -137,8 +145,7 @@ var DoorScene = new Phaser.Class({
                 (event.keyCode >= 48 && event.keyCode <= 57) || (event.keyCode >= 96 && event.keyCode <= 105)) {
                 this.answerField.text += event.key;
             }
-
-        }.bind(this));
+        }, this);
     },
 
     createDoorAnimation: function () {
@@ -150,14 +157,17 @@ var DoorScene = new Phaser.Class({
 
         this.anims.create(config);
 
-        this.doorGif = this.add.sprite(400, 300, 'door-openAnimation');
+        this.doorGif = this.add.sprite(400, 325, 'door-openAnimation');
 
         this.doorGif.displayWidth = 500;
         this.doorGif.scaleY = this.doorGif.scaleX;
 
-        this.doorGif.on(Phaser.Animations.Events.SPRITE_ANIMATION_COMPLETE, () => {
-            alert('next Level');
-            this.scene.start('doorScene', { problemType: this.problemType, level: this.currentLevel + 1, score: this.currentScore });
+        // set up a listener so we can advance to the next level once the door animation finishes playing.
+        this.doorGif.on('animationcomplete-openDoor', () => {
+            //
+            this.roundTimer.remove();
+            //this.scene.start('doorScene', { problemType: this.problemType, level: this.currentLevel + 1, score: this.currentScore });
+            this.scene.restart({ problemType: this.problemType, level: this.currentLevel + 1, score: this.currentScore });
         }, this);
     },
 
@@ -166,16 +176,15 @@ var DoorScene = new Phaser.Class({
         const chosenOperation = this.problemType.length === 1 ? this.problemType[0] : Math.floor((Math.random() * this.problemType.length));
         const templateIndex = Math.floor((Math.random() * chosenOperation.length));
         let questionToReturn = instantiate(chosenOperation[templateIndex].template);
-        this.questionField.setText(questionToReturn.questionText);
+        this.questionField.setText('Solve: '+questionToReturn.questionText);
         this.currentQuestionToSolve = questionToReturn;
-        //return questionToReturn;
     },
 
     // creates an array of a number of lock images
     createLocksArr: function () {
-        for (let i = 0; i < this.numLocksRemaining; i++) {
+        for (let i = 0; i < this.startingLocks; i++) {
             let xCoord = ((i % 2) === 0) ? 225 : 575;
-            let yCoord = 150 + (150 * Math.floor(i / 2));
+            let yCoord = 175 + (150 * Math.floor(i / 2));
             this.locksArr.push(this.createLock(i, xCoord, yCoord));
         }
         // we want to reverse the array so we can 'unlock' starting with the first (top left) lock
@@ -184,14 +193,12 @@ var DoorScene = new Phaser.Class({
 
     // create an individual lock image
     createLock: function (index, xCoord, yCoord) {
-        //console.log('x:', xCoord, 'y:', yCoord);
         var config = {
             key: 'unlock',
             //animation has 60 frames. Set end to 61 so it disappears once it 'unlocks'
             frames: this.anims.generateFrameNumbers('lock-animation', { start: 0, end: 61 }),
             frameRate: 60
         };
-        //console.log(config);
         this.anims.create(config);
 
         var lockGif = this.add.sprite(xCoord, yCoord, 'lock-animation');
@@ -202,27 +209,24 @@ var DoorScene = new Phaser.Class({
         return lockGif;
     },
 
-    //checks if the submitted answer is correct
-    isAnswerCorrect: function () {
-        if (typeof this.currentQuestionToSolve.solutionValue === 'number') {
-            return (parseFloat(this.answerField.text) === this.currentQuestionToSolve.solutionValue);
-        }
-        return (this.answerField.text === this.currentQuestionToSolve.solutionValue);
-    },
-
     unlockLock: function () {
+        // remove the lock from this.locksArr and play the unlocking animation
         let tempLock = this.locksArr.pop();
         tempLock.play('unlock');
-        this.numLocksRemaining--;
-        // increase score here
-        this.currentScore += 10 * this.currentLevel;
-        this.scoreField.setText('Score: ' + this.currentScore);
+        // if that was the last lock, open the door
+        if (this.locksArr.length === 0) {
+            this.roundTimer.paused = true;
+            tempLock.on('animationcomplete-unlock', () => {
+                this.doorGif.play('openDoor');
+            }, this);
+        }
     },
 
     startTimer: function () {
         // game starts with 6 seconds on the clock, takes off 5 every round
         this.startingTime = 60 - ((this.currentLevel - 1) * 5);
         this.roundTimer = this.time.delayedCall(this.startingTime * 1000, this.endGame, [], this);
+        this.timerField.setText('Timer:' + this.startingTime);
     },
 
     endGame: function () {
