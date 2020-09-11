@@ -41,6 +41,8 @@ var DoorScene = new Phaser.Class({
         this.timerField = null;
         // the display field for the score
         this.scoreField = null;
+        // field to inform the user they submitted an incorect answer. Starts hidden and only appears if a wrong answer submitted
+        this.incorrectAnswerField = null;
         // keyEnter needs to be saved so we know when user submits an answer
         this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     },
@@ -58,7 +60,7 @@ var DoorScene = new Phaser.Class({
 
     create: function () {
         // display the background image
-        this.add.image(400,300,'background');
+        this.add.image(400, 300, 'background');
 
         // function that sets up the animation for opening the door
         this.createDoorAnimation();
@@ -98,6 +100,10 @@ var DoorScene = new Phaser.Class({
         this.questionField.removeInteractive();
         // create the answer field
         this.answerField = this.add.text(10, 50, '', { font: '32px Courier', fill: '#ffff00' });
+        // create the incorrect answer field
+        this.incorrectAnswerField = this.add.text(10, 90, 'Incorrect', { fontFamily: 'Courier', fontSize: '32px', color: 'red', fontStyle: 'bold' });
+        this.incorrectAnswerField.removeInteractive();
+        this.incorrectAnswerField.setVisible(false);
         // create the timer field -- will be filled in startTimer();
         this.timerField = this.add.text(575, 10, '', { font: '32px Courier', fill: 'red' });
         this.timerField.removeInteractive();
@@ -106,7 +112,7 @@ var DoorScene = new Phaser.Class({
         this.scoreField.removeInteractive();
         // display instructions for the player
         this.add.text(200, 525, 'Press Enter to submit answers' +
-                                '\n Unlock all locks to advance', { font: '24px Courier', fill: '#00ff00' });
+            '\n Unlock all locks to advance', { font: '24px Courier', fill: '#00ff00' });
         // registers the allowed keystrokes for the input fields
         this.registerKeystrokes();
     },
@@ -118,6 +124,8 @@ var DoorScene = new Phaser.Class({
             if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.ENTER && this.answerField.text.length > 0) {
                 const answerIsCorrect = (parseFloat(this.answerField.text) === this.currentQuestionToSolve.solutionValue);
                 if (answerIsCorrect) {
+                    // hide the incorrect notice if it is visible
+                    this.incorrectAnswerField.setVisible(false);
                     // unlock the next lock
                     this.unlockLock();
                     // increase score
@@ -128,9 +136,9 @@ var DoorScene = new Phaser.Class({
                         this.createAndRenderQuestion();
                     }
                 }
-                else {
-                    alert('wrong');
-                    // handle an incorrect answer   
+                else {  // handle an incorrect answer   
+                    this.incorrectAnswerField.setVisible(true);
+                    this.time.delayedCall(1000, this.toggleIncorrectAnswerField,[], this);
                 }
                 this.answerField.setText('');
             }
@@ -148,6 +156,10 @@ var DoorScene = new Phaser.Class({
         }, this);
     },
 
+    toggleIncorrectAnswerField: function(){
+        this.incorrectAnswerField.setVisible(false);
+    },
+
     createDoorAnimation: function () {
         var config = {
             key: 'openDoor',
@@ -163,7 +175,7 @@ var DoorScene = new Phaser.Class({
         this.doorGif.scaleY = this.doorGif.scaleX;
 
         // set up a listener so we can advance to the next level once the door animation finishes playing.
-        this.doorGif.on('animationcomplete-openDoor', () => {
+        this.doorGif.on('animationcomplete', () => {
             //
             this.roundTimer.remove();
             //this.scene.start('doorScene', { problemType: this.problemType, level: this.currentLevel + 1, score: this.currentScore });
@@ -173,11 +185,13 @@ var DoorScene = new Phaser.Class({
 
     createAndRenderQuestion: function () {
         // select the array of possible templates for the next question
-        const chosenOperation = this.problemType.length === 1 ? this.problemType[0] : Math.floor((Math.random() * this.problemType.length));
+        // array either has 1 possible operation or several. If several are available, choose a random one.
+        const chosenOperation = this.problemType.length === 1 ? this.problemType[0] : this.problemType[Math.floor((Math.random() * this.problemType.length))];
+        // each operation has a number of possible problems. Choose one at random
         const templateIndex = Math.floor((Math.random() * chosenOperation.length));
-        let questionToReturn = instantiate(chosenOperation[templateIndex].template);
-        this.questionField.setText('Solve: '+questionToReturn.questionText);
-        this.currentQuestionToSolve = questionToReturn;
+        // use ardentScript to generate a random problem of the given type
+        this.currentQuestionToSolve = instantiate(chosenOperation[templateIndex].template);
+        this.questionField.setText('Solve: ' + this.currentQuestionToSolve.questionText);
     },
 
     // creates an array of a number of lock images
