@@ -1,5 +1,5 @@
 {
-  "name": "milestone4",
+  "name": "server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,5 +8,9 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "graphql-playground-html": "^1.6.25",
+    "graphql-yoga": "^1.18.3"
+  }
 }
