@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import Leaderboard from './components/Leaderboard'
+import LeaderboardSubscription from './components/LeaderboardSubscription'
 
 
 export default function App() {

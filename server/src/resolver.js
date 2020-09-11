@@ -1,17 +1,17 @@
 // server/src/resolver.js
 
-const chats = []
+const scores = []
 const LEADERBOARD_CHANNEL = 'LEADERBOARD_CHANNEL'
 
 const resolvers = {
   Query: {
-    chats (root, args, context) {
+    scores (root, args, context) {
       return scores
     }
   },
 
   Mutation: {
-    sendMessage (root, { name, points, operation }, { pubsub }) {
+    sendScore (root, { name, points, operation }, { pubsub }) {
       const score = { id: scores.length + 1, name, points, operation }
 
       scores.push(score)

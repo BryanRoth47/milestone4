@@ -12,7 +12,7 @@
       }
 
       type Mutation {
-        sendMessage(name: String!, points: Int!, operation: String!): Score
+        sendScore(name: String!, points: Int!, operation: String!): Score
       }
 
       type Subscription {
