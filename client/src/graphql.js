@@ -14,7 +14,7 @@ export const SCORES_QUERY = gql`
 export const SEND_SCORE_MUTATION = gql`
 mutation SendScoreMutation($name: String!, $points: Int!, $operation: String!) {
   sendScore(
-    name: $from,
+    name: $name,
     points: $points,
     operation: $operation
   ) {
@@ -28,7 +28,7 @@ mutation SendScoreMutation($name: String!, $points: Int!, $operation: String!) {
 
 export const SCORE_SENT_SUBSCRIPTION = gql`
 subscription ScoreSentSubscription {
-  scoreAdded {
+  newScores {
     id
     name
     points

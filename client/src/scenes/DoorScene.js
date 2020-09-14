@@ -1,7 +1,10 @@
 import Phaser from 'phaser';
 import { instantiate } from '@ardentlabs/ardent-script';
 
+// the max number of locks
 const MAX_LOCKS = 6;
+// the max # of seconds on the timer
+const MAX_STARTING_TIME = 5;
 
 var DoorScene = new Phaser.Class({
 
@@ -238,7 +241,7 @@ var DoorScene = new Phaser.Class({
 
     startTimer: function () {
         // game starts with 6 seconds on the clock, takes off 5 every round
-        this.startingTime = 60 - ((this.currentLevel - 1) * 5);
+        this.startingTime = MAX_STARTING_TIME - ((this.currentLevel - 1) * 5);
         this.roundTimer = this.time.delayedCall(this.startingTime * 1000, this.endGame, [], this);
         this.timerField.setText('Timer:' + this.startingTime);
     },

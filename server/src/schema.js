@@ -16,7 +16,7 @@
       }
 
       type Subscription {
-        scoreAdded: Score
+        newScores: [Score]
       }
     `
     module.exports = typeDefs

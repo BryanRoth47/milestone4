@@ -72,4 +72,3 @@ var config = {
 
 var game = new Phaser.Game(config);
 game.getTime(); // this line is only here to supress React's warning about unused variables
-
