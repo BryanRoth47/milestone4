@@ -17,6 +17,10 @@ var EndScene = new Phaser.Class({
         this.finalScore = data.score;
         // contains the number of levels fully completed by the player
         this.completedLevels = data.level - 1;
+        // contains the operation the player chose (first leter capitalized)
+        this.chosenOperation = data.operation.replace(/\b\w/g, c => c.toUpperCase());
+        // contains the difficulty the player chose (first leter capitalized)
+        this.chosenDifficulty = data.difficulty.replace(/\b\w/g, c => c.toUpperCase());
     },
     /*
         preload: function () {
@@ -31,6 +35,8 @@ var EndScene = new Phaser.Class({
         graphics.fillRect(100, 200, 600, 300);
 
         const stringToOutput = 'Game Over' +
+            '\nOperation: ' + this.chosenOperation +
+            '\nDifficulty: ' + this.chosenDifficulty +
             '\nLevels Completed: ' + this.completedLevels +
             '\nFinal Score: ' + this.finalScore;
 
