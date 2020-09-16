@@ -5,7 +5,7 @@ import { getTemplatesArray } from '../templates/difficultyArray'
 // the max number of locks
 const MAX_LOCKS = 6;
 // the max # of seconds on the timer
-const MAX_STARTING_TIME = 10;
+const MAX_STARTING_TIME = 6;
 
 const DIFFICULTY_MULTIPLIERS = {
     'easy': 1,
@@ -204,8 +204,8 @@ var DoorScene = new Phaser.Class({
         // each operation has a number of possible problems. Choose one at random
         const templateIndex = Math.floor((Math.random() * this.templatesArr.length));
 
-        // enable this to let you track what template is generating a question. Useful if you need to change the difficulty of a template
-        console.log(this.templatesArr[templateIndex].type);
+        // DEBUG - enable this to let you track what template is generating a question. Useful if you need to change the difficulty of a template
+        //console.log(this.templatesArr[templateIndex].type);
 
         // use ardentScript to generate a random problem of the given type
         this.currentQuestionToSolve = instantiate(this.templatesArr[templateIndex].template);

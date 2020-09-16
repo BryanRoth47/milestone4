@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Score from './Score';
 
-export class Leaderboard extends Component {
+export class LeaderboardDisplay extends Component {
 
     componentDidMount(){
         this.props.subscribeToNewScores();
@@ -24,4 +24,4 @@ export class Leaderboard extends Component {
     }
 }
 
-export default Leaderboard
+export default LeaderboardDisplay

@@ -59,7 +59,7 @@ const DIFFICULTY_ARRAY = {
 function getTemplatesArray(operation, difficulty) {
     const operationName = operation.toLowerCase();
     const currentOperation = DIFFICULTY_ARRAY[operationName];
-    console.log(currentOperation);
+    //console.log(currentOperation);
     let min, max, tempArr = null;
     if (operationName !== 'all') {
         min = currentOperation[difficulty][0];
@@ -67,6 +67,7 @@ function getTemplatesArray(operation, difficulty) {
         tempArr = currentOperation['templates'].slice(min, max + 1);
     }
     else {
+        // if we're using all operations, assemble the array by calling getTemplatesArray() for each individual operation and concat the results
         tempArr = getTemplatesArray('addition', difficulty);
         tempArr = tempArr.concat(getTemplatesArray('subtraction', difficulty));
         tempArr = tempArr.concat(getTemplatesArray('multiplication', difficulty));

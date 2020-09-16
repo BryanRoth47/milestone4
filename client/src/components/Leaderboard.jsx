@@ -1,14 +1,13 @@
 import React from 'react'
-import { SCORES_QUERY, SCORE_SENT_SUBSCRIPTION, SEND_SCORE_MUTATION } from '../graphql';
-import { useQuery, useMutation } from 'react-apollo';
+import { SCORES_QUERY, SCORE_SENT_SUBSCRIPTION } from '../graphql';
+import { useQuery } from 'react-apollo';
 import LeaderboardDisplay from './LeaderboardDisplay';
 import { updateScoresInPhaser } from '../phaserScores'
 
 // useQuery() requires a function, not a Component. This just gets allChats and calls a Component to render everything
 export default function Leaderboard(props) {
     var { subscribeToMore, data: allScores } = useQuery(SCORES_QUERY);
-
-    // React appears to render the page once, then calls useQuery. We have to ensure allScores.scores is defined for that first call
+    // React appears to render the page once, then calls useQuery(). We have to ensure allScores.scores is defined for that first call
     if (allScores === undefined) {
         allScores = {};
     }
@@ -16,13 +15,13 @@ export default function Leaderboard(props) {
         allScores.scores = [];
     }
 
-    //const [sendScore] = useMutation(SEND_SCORE_MUTATION);
-
     updateScoresInPhaser(allScores.scores);
     return (
         <div id='leaderboardDiv'>
-            <h6>Leaderboard</h6>
+            <h4>Leaderboard</h4>
+            <h6>{'Player\t\tOperation\t\tScore'}</h6>
             <LeaderboardDisplay allScores={allScores.scores} subscribeToNewScores={() =>
+                // Receives and handles subscriptions, instead of useSubscription(). This is adapted from code in React's documentation
                 subscribeToMore({
                     document: SCORE_SENT_SUBSCRIPTION,
                     updateQuery: (prev, { subscriptionData }) => {
@@ -35,16 +34,8 @@ export default function Leaderboard(props) {
                     }
                 })
             } />
-            <button onClick={() => SendToServer('test',400, 'addition')}>Click</button>
         </div>
     )
 }
+//<button onClick={() => SendToServer('test',400, 'addition')}>Click</button>
 
-function SendToServer(name, points, operation){
-    const [sendScore,] = useMutation(SEND_SCORE_MUTATION);
-    sendScore({variables:{name:'test',points:400, operation:'addition'}});
-    return(
-        null
-        );
-}
-//<button onClick={() => sendScore({variables:{name:'test',points:400, operation:'addition'}})}>Click</button>

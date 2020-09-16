@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { getScores } from '../phaserScores'
-//import {sendScoreToServer} from '../components/Leaderboard'
+import ScoreApolloWrapper from '../components/ScoreSubmittal'
+
+//var alreadySentScores = false;
 
 var EndScene = new Phaser.Class({
 
@@ -42,18 +44,36 @@ var EndScene = new Phaser.Class({
 
         this.add.text(150, 250, stringToOutput, { font: '24px Courier', fill: '#000000' });
         var currentHighScores = getScores();
-        if (currentHighScores !== undefined && currentHighScores.length > 0) {
+        if (currentHighScores.length > 0) {
             this.add.text(150, 350, 'Current High Scores');
             this.add.text(200, 375, 'Name\t\t\tOperation\t\t\tScore');
 
             var textFieldsArray = [];
             for (let i = 0; i < currentHighScores.length; i++) {
                 textFieldsArray.push(this.add.text(150, 400 + 25 * i, i + 1 + '.\t' + currentHighScores[i].name + '\t\t\t' + currentHighScores[i].operation + '\t\t\t' + currentHighScores[i].points));
-            }
-            if (400 > currentHighScores[currentHighScores.length - 1].points) {
-                //sendScoreToServer();
+            }/*
+            if (this.finalScore > currentHighScores[currentHighScores.length - 1].points) {
+                this.submitHighScore(currentHighScores);
             }
         }
+        else {
+            */
+            //let tempDom = this.submitHighScore(currentHighScores);
+            //tempDom.destroy();
+        }
+        // to simplify, the game always submits the score to the server. The server gets to decide if it belongs on the list
+            let tempDom = this.submitHighScore(currentHighScores);
+            tempDom.destroy();
+    },
+
+
+    submitHighScore: function (currentHighScores) {
+        //if (alreadySentScores === false) {
+           // alreadySentScores = true;
+            // create the React Component, triggering useMutation to send the data to the server
+            return this.add.reactDom(ScoreApolloWrapper, { name: 'test', operation: this.chosenOperation, score: this.finalScore });
+            // then destroy the component, since we no longer need it
+       // }
     },
 
     shutdown: function () {

@@ -6,6 +6,8 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 // Phaser import
 import Phaser from 'phaser';
+// plugin to allow Phaser to communicate with React
+import phaserReact from "phaser3-react";
 // Import the Scenes Phaser will render
 import MenuScene from './scenes/MenuScene';
 import DoorScene from './scenes/DoorScene';
@@ -61,14 +63,27 @@ serviceWorker.unregister();
 
 
 var config = {
+  parent: 'phaser-game',
+  dom: { createContainer: true },
   type: Phaser.CANVAS,
   width: 800,
   height: 600,
-  canvas: document.getElementById('phaser-game'),
+  //canvas: document.getElementById('phaser-game'),
   audio: { noAudio: true },
-  scene: [MenuScene, DoorScene, EndScene]
+  scene: [MenuScene, DoorScene, EndScene],
+  plugins: {
+    global: [
+      {
+        key: 'phaser-react',
+        plugin: phaserReact,
+        start: true
+      }
+    ]
+  }
 };
 
 
 var game = new Phaser.Game(config);
 game.getTime(); // this line is only here to supress React's warning about unused variables
+
+export {client}
