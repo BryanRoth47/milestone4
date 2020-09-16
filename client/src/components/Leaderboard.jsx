@@ -17,23 +17,22 @@ export default function Leaderboard(props) {
 
     updateScoresInPhaser(allScores.scores);
     return (
-        <div id='leaderboardDiv'>
-            <h4>Leaderboard</h4>
-            <h6>{'Player\t\tOperation\t\tScore'}</h6>
-            <LeaderboardDisplay allScores={allScores.scores} subscribeToNewScores={() =>
-                // Receives and handles subscriptions, instead of useSubscription(). This is adapted from code in React's documentation
-                subscribeToMore({
-                    document: SCORE_SENT_SUBSCRIPTION,
-                    updateQuery: (prev, { subscriptionData }) => {
-                        if (!subscriptionData.data) return prev;
-                        const newScores = Object.assign({}, prev, {
-                            scores: subscriptionData.data.newScores
-                        });
-                        updateScoresInPhaser(newScores.scores);
-                        return newScores;
-                    }
-                })
-            } />
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div id='leaderboardDiv' >
+                <LeaderboardDisplay allScores={allScores.scores} subscribeToNewScores={() =>
+                    subscribeToMore({
+                        document: SCORE_SENT_SUBSCRIPTION,
+                        updateQuery: (prev, { subscriptionData }) => {
+                            if (!subscriptionData.data) return prev;
+                            const newScores = Object.assign({}, prev, {
+                                scores: subscriptionData.data.newScores
+                            });
+                            updateScoresInPhaser(newScores.scores);
+                            return newScores;
+                        }
+                    })
+                } />
+            </div>
         </div>
     )
 }

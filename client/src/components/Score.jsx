@@ -4,6 +4,11 @@ import React from 'react'
 export default function Score(props) {
     //const toDisplay = props.score.name + '\t\t'+props.score.operation + '\t\t'+props.score.points;
     return (
-        <li>{props.score.name + '\t\t'+props.score.operation + '\t\t'+props.score.points}</li>
+        //<li>{props.score.name + '\t\t'+props.score.operation + '\t\t'+props.score.points}</li>
+        <tr>
+            <th>{props.score.name}</th>
+            <th>{props.score.operation}</th>
+            <th>{props.score.points}</th>
+        </tr>
     )
 }

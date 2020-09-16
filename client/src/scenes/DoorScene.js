@@ -140,7 +140,6 @@ var DoorScene = new Phaser.Class({
                     // unlock the next lock
                     this.unlockLock();
                     // increase score
-                    console.log(DIFFICULTY_MULTIPLIERS[this.chosenDifficulty]);
                     this.currentScore += 10 * this.currentLevel * DIFFICULTY_MULTIPLIERS[this.chosenDifficulty];
                     this.scoreField.setText('Score: ' + this.currentScore);
                     // if there are more locks left, generate a new question
