@@ -62,13 +62,13 @@ ReactDOM.render(
 serviceWorker.unregister();
 
 
-var config = {
+var phaserConfig = {
   parent: 'phaser-game',
   dom: { createContainer: true },
   type: Phaser.CANVAS,
   width: 800,
   height: 600,
-  //canvas: document.getElementById('phaser-game'),
+  //canvas: document.getElementById('phaser-game'), // removed, since plugin PhaserReact requires 'parent' property
   audio: { noAudio: true },
   scene: [MenuScene, DoorScene, EndScene],
   plugins: {
@@ -83,7 +83,7 @@ var config = {
 };
 
 
-var game = new Phaser.Game(config);
+var game = new Phaser.Game(phaserConfig);
 game.getTime(); // this line is only here to supress React's warning about unused variables
 
 export {client}

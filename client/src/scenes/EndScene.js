@@ -45,9 +45,9 @@ var EndScene = new Phaser.Class({
             '\nFinal Score: ' + this.finalScore;
 
         this.add.text(250, 225, stringToOutput, { font: '24px Courier', fill: '#000000' });
-        this.nameField = this.add.text(150, 375, 'Enter Name:', { font: '32px Courier', fill: '#ffff00' });
+        this.nameField = this.add.text(150, 375, 'Enter Name:', { font: '32px Courier', fill: 'purple' });
         this.nameField.removeInteractive();
-        this.nameSubmit = this.add.text(150, 425, '', { font: '32px Courier', fill: '#ffff00' });
+        this.nameSubmit = this.add.text(150, 425, '', { font: '32px Courier', fill: 'purple' });
 
         this.registerKeystrokes();
     },
@@ -64,7 +64,7 @@ var EndScene = new Phaser.Class({
                 this.nameField.destroy();
                 this.nameSubmit.destroy();
                 this.displayHighScores();
-                
+
             }
             // backspace - delete the last character
             else if (event.keyCode === Phaser.Input.Keyboard.KeyCodes.BACKSPACE && this.nameSubmit.text.length > 0) {
@@ -78,8 +78,15 @@ var EndScene = new Phaser.Class({
         }, this);
     },
 
+
     displayHighScores: function () {
         var currentHighScores = getScores();
+        /*
+            It is difficult to ensure Phaser renders the high score list AFTER the server sends the updated list via subscription. 
+            As such, Phaser will just display the highest score, and will manually determine if the new score is the highest, without
+            waiting for the server.
+
+        // the below code will display the high score list, if you can get it to synch properly.
         if (currentHighScores.length > 0) {
             this.add.text(150, 500, 'Current High Scores');
             this.add.text(200, 375, 'Name\t\t\tOperation\t\t\tScore');
@@ -87,31 +94,34 @@ var EndScene = new Phaser.Class({
             var textFieldsArray = [];
             for (let i = 0; i < currentHighScores.length; i++) {
                 textFieldsArray.push(this.add.text(150, 400 + 25 * i, i + 1 + '.\t' + currentHighScores[i].name + '\t\t\t' + currentHighScores[i].operation + '\t\t\t' + currentHighScores[i].points));
-            }/*
-            if (this.finalScore > currentHighScores[currentHighScores.length - 1].points) {
-                this.submitHighScore(currentHighScores);
             }
         }
-        else {
-            */
-            //let tempDom = this.submitHighScore(currentHighScores);
-            //tempDom.destroy();
-        }
-        /*
-        // to simplify, the game always submits the score to the server. The server gets to decide if it belongs on the list
-        let tempDom = this.submitHighScore(currentHighScores);
-        tempDom.destroy();
         */
+
+        // code below just displays the single highest score
+        var scoreToDisplay = {};
+        if (currentHighScores.length === 0 || this.finalScore > currentHighScores[0].points) {
+            scoreToDisplay.name = this.playerName;
+            scoreToDisplay.operation = this.chosenOperation;
+            scoreToDisplay.score = this.finalScore;
+        }
+        else{
+            console.log(currentHighScores);
+            scoreToDisplay.name = currentHighScores[0].name;
+            scoreToDisplay.operation = currentHighScores[0].operation;
+            scoreToDisplay.score = currentHighScores[0].points;
+        }
+
+        this.add.text(300, 375, 'Current Highest Score', {fill:'black'});
+        this.add.text(275, 400, 'Name\t\t\tOperation\t\t\tScore', {fill:'black'});
+        this.add.text(250, 425,'1.\t' + scoreToDisplay.name + '\t\t\t\t' + scoreToDisplay.operation + '\t\t\t\t' + scoreToDisplay.score, {fill:'black'});
     },
 
 
     submitHighScore: function () {
-        //if (alreadySentScores === false) {
-        // alreadySentScores = true;
+        console.log('here');
         // create the React Component, triggering useMutation to send the data to the server
-        return this.add.reactDom(ScoreApolloWrapper, { name: this.playerName, operation: this.chosenOperation, score: this.finalScore });
-        // then destroy the component, since we no longer need it
-        // }
+        this.add.reactDom(ScoreApolloWrapper, { name: this.playerName, operation: this.chosenOperation, score: this.finalScore });
     },
 
     shutdown: function () {
