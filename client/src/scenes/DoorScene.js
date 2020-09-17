@@ -174,7 +174,7 @@ var DoorScene = new Phaser.Class({
     createDoorAnimation: function () {
         var config = {
             key: 'openDoor',
-            frames: this.anims.generateFrameNumbers('door-openAnimation', { start: 0, end: 48 }),
+            frames: this.anims.generateFrameNumbers('door-openAnimation', { start: 0, end: 47 }),
             frameRate: 30
         };
 
@@ -229,9 +229,9 @@ var DoorScene = new Phaser.Class({
     createLock: function (index, xCoord, yCoord) {
         var config = {
             key: 'unlock',
-            //animation has 60 frames. Set end to 61 so it disappears once it 'unlocks'
-            frames: this.anims.generateFrameNumbers('lock-animation', { start: 0, end: 61 }),
-            frameRate: 60
+            frames: this.anims.generateFrameNumbers('lock-animation', { start: 0, end: 60 }),
+            frameRate: 60,
+            hideOnComplete:true
         };
         this.anims.create(config);
 
