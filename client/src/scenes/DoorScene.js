@@ -5,7 +5,7 @@ import { getTemplatesArray } from '../templates/difficultyArray'
 // the max number of locks
 const MAX_LOCKS = 6;
 // the max # of seconds on the timer
-const MAX_STARTING_TIME = 6;
+const MAX_STARTING_TIME = 60;
 
 const DIFFICULTY_MULTIPLIERS = {
     'easy': 1,
