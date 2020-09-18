@@ -19,11 +19,11 @@ export class LeaderboardDisplay extends Component {
         }
 
         return (
-            <div class="container" style={{ display: 'flex', justifyContent: 'center' }}>
-                <div class="text-center">
+            <div className="container" style={{ display: 'flex', justifyContent: 'center' }}>
+                <div className="text-center">
                     <h2>Leaderboard</h2>
-                    <div class='table-responsive'>
-                        <table class='table'>
+                    <div className='table-responsive'>
+                        <table className='table'>
                             <thead>
                                 <tr>
                                     <th scope="text-center"></th>
