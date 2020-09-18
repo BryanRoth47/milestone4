@@ -6,9 +6,10 @@ export default function Score(props) {
     return (
         //<li>{props.score.name + '\t\t'+props.score.operation + '\t\t'+props.score.points}</li>
         <tr>
-            <th>{props.score.name}</th>
-            <th>{props.score.operation}</th>
-            <th>{props.score.points}</th>
+            <th scope="row">{props.position+1}</th>
+            <td>{props.score.name}</td>
+            <td>{props.score.operation}</td>
+            <td>{props.score.points}</td>
         </tr>
     )
 }

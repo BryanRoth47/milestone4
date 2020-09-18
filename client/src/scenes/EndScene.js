@@ -113,8 +113,8 @@ var EndScene = new Phaser.Class({
         }
 
         this.add.text(300, 375, 'Current Highest Score', {fill:'black'});
-        this.add.text(275, 400, 'Name\t\t\tOperation\t\t\tScore', {fill:'black'});
-        this.add.text(250, 425,'1.\t' + scoreToDisplay.name + '\t\t\t\t' + scoreToDisplay.operation + '\t\t\t\t' + scoreToDisplay.score, {fill:'black'});
+        this.add.text(285, 400, 'Name\t\t\tOperation\t\t\tScore', {fill:'black'});
+        this.add.text(285, 425,scoreToDisplay.name + '\t\t\t\t' + scoreToDisplay.operation + '\t\t\t\t' + scoreToDisplay.score, {fill:'black'});
     },
 
 

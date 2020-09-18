@@ -17,23 +17,19 @@ export default function Leaderboard(props) {
 
     updateScoresInPhaser(allScores.scores);
     return (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <div id='leaderboardDiv' >
-                <LeaderboardDisplay allScores={allScores.scores} subscribeToNewScores={() =>
-                    subscribeToMore({
-                        document: SCORE_SENT_SUBSCRIPTION,
-                        updateQuery: (prev, { subscriptionData }) => {
-                            if (!subscriptionData.data) return prev;
-                            const newScores = Object.assign({}, prev, {
-                                scores: subscriptionData.data.newScores
-                            });
-                            updateScoresInPhaser(newScores.scores);
-                            return newScores;
-                        }
-                    })
-                } />
-            </div>
-        </div>
+        <LeaderboardDisplay allScores={allScores.scores} subscribeToNewScores={() =>
+            subscribeToMore({
+                document: SCORE_SENT_SUBSCRIPTION,
+                updateQuery: (prev, { subscriptionData }) => {
+                    if (!subscriptionData.data) return prev;
+                    const newScores = Object.assign({}, prev, {
+                        scores: subscriptionData.data.newScores
+                    });
+                    updateScoresInPhaser(newScores.scores);
+                    return newScores;
+                }
+            })
+        } />
     )
 }
 //<button onClick={() => SendToServer('test',400, 'addition')}>Click</button>
