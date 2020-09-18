@@ -1,7 +1,7 @@
 // server/src/resolver.js
 
 const scores = []
-const MAX_SCORES_KEPT = 2;
+const MAX_SCORES_KEPT = 10;
 const LEADERBOARD_CHANNEL = 'LEADERBOARD_CHANNEL';
 var nextId = 1;
 

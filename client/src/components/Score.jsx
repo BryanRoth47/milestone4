@@ -2,14 +2,15 @@ import React from 'react'
 
 // renders a single line of the React leaderboard 
 export default function Score(props) {
-    //const toDisplay = props.score.name + '\t\t'+props.score.operation + '\t\t'+props.score.points;
+    /*
+        Output is formatted so that names and operations are capitalized, score is displayed as 2,000
+    */
     return (
-        //<li>{props.score.name + '\t\t'+props.score.operation + '\t\t'+props.score.points}</li>
         <tr>
-            <th scope="row">{props.position+1}</th>
-            <td>{props.score.name}</td>
-            <td>{props.score.operation}</td>
-            <td>{props.score.points}</td>
+            <th scope="row">{props.position + 1}</th>
+            <td style={{ textTransform: 'capitalize' }}>{props.score.name}</td>
+            <td style={{ textTransform: 'capitalize' }}>{props.score.operation}</td>
+            <td>{props.score.points.toLocaleString("en-US")}</td>
         </tr>
     )
 }
