@@ -1,7 +1,17 @@
 import Phaser from 'phaser';
 import { instantiate } from '@ardentlabs/ardent-script';
+import { getTemplatesArray } from '../templates/difficultyArray'
 
+// the max number of locks
 const MAX_LOCKS = 6;
+// the max # of seconds on the timer
+const MAX_STARTING_TIME = 60;
+
+const DIFFICULTY_MULTIPLIERS = {
+    'easy': 1,
+    'medium': 2,
+    'hard': 5
+}
 
 var DoorScene = new Phaser.Class({
 
@@ -16,13 +26,14 @@ var DoorScene = new Phaser.Class({
     init: function (data) {
         // contains the current level, used to determine time limit and score multiplier
         this.currentLevel = data.level;
-        // an array containing the templates for the chosen operations. (so an array of arrays)
-        // Top level array will either be size 1 (i.e. just doing addition problems) or size 4 (doing all 4 operations)
-        this.problemType = data.problemType;
+        // hold the name of the operation -- used for the leaderboards
+        this.originalOperation = data.problemType;
+        // stores the chosen difficulty
+        this.chosenDifficulty = data.difficulty;
+        // an array containing the templates for the chosen operations.
+        this.templatesArr = getTemplatesArray(this.originalOperation, this.chosenDifficulty);
         // tracks the cumulative score
         this.currentScore = data.score;
-        // tracks how many locks were originally created
-        this.startingLocks = this.currentLevel <= MAX_LOCKS ? this.currentLevel : MAX_LOCKS;
         // create an empty array to hold the locks
         this.locksArr = [];
         // holds the door animation object
@@ -43,18 +54,18 @@ var DoorScene = new Phaser.Class({
         this.scoreField = null;
         // field to inform the user they submitted an incorect answer. Starts hidden and only appears if a wrong answer submitted
         this.incorrectAnswerField = null;
-        // keyEnter needs to be saved so we know when user submits an answer
-        this.keyEnter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     },
 
     preload: function () {
-        // door with blue animation
+        // Phaser needs its images to be hosted on a server. Posted them to imgur for convenience, but kept local copies for future use
+
+        // door with blue animation --> the image is also '../public/blue door clear.jpg'
         //this.load.spritesheet('door-openAnimation', 'https://i.imgur.com/r6sxy7Z.png', { frameWidth: 640, frameHeight: 640, endFrame: 19 });
-        // door with yellow animation
+        // door with yellow animation --> the image is also '../public/yellow door clear.png'
         this.load.spritesheet('door-openAnimation', 'https://i.imgur.com/bQVzDVV.png', { frameWidth: 640, frameHeight: 640, endFrame: 48 });
-        // unlocking animation
+        // unlocking animation --> the image is also '../public/lock clear.png'
         this.load.spritesheet('lock-animation', 'https://i.imgur.com/CqHC7Ac.png', { frameWidth: 640, frameHeight: 640, endFrame: 61 });
-        // background image
+        // background image --> the image is also '../public/background.jpg'
         this.load.image('background', 'https://i.imgur.com/M5mzR72.jpg');
     },
 
@@ -129,7 +140,7 @@ var DoorScene = new Phaser.Class({
                     // unlock the next lock
                     this.unlockLock();
                     // increase score
-                    this.currentScore += 10 * this.currentLevel;
+                    this.currentScore += 10 * this.currentLevel * DIFFICULTY_MULTIPLIERS[this.chosenDifficulty];
                     this.scoreField.setText('Score: ' + this.currentScore);
                     // if there are more locks left, generate a new question
                     if (this.locksArr.length > 0) {
@@ -138,7 +149,7 @@ var DoorScene = new Phaser.Class({
                 }
                 else {  // handle an incorrect answer   
                     this.incorrectAnswerField.setVisible(true);
-                    this.time.delayedCall(1000, this.toggleIncorrectAnswerField,[], this);
+                    this.time.delayedCall(1000, this.toggleIncorrectAnswerField, [], this);
                 }
                 this.answerField.setText('');
             }
@@ -156,14 +167,14 @@ var DoorScene = new Phaser.Class({
         }, this);
     },
 
-    toggleIncorrectAnswerField: function(){
+    toggleIncorrectAnswerField: function () {
         this.incorrectAnswerField.setVisible(false);
     },
 
     createDoorAnimation: function () {
         var config = {
             key: 'openDoor',
-            frames: this.anims.generateFrameNumbers('door-openAnimation', { start: 0, end: 48 }),
+            frames: this.anims.generateFrameNumbers('door-openAnimation', { start: 0, end: 47 }),
             frameRate: 30
         };
 
@@ -179,24 +190,33 @@ var DoorScene = new Phaser.Class({
             //
             this.roundTimer.remove();
             //this.scene.start('doorScene', { problemType: this.problemType, level: this.currentLevel + 1, score: this.currentScore });
-            this.scene.restart({ problemType: this.problemType, level: this.currentLevel + 1, score: this.currentScore });
+            this.scene.restart({
+                problemType: this.originalOperation,
+                difficulty: this.chosenDifficulty,
+                level: this.currentLevel + 1,
+                score: this.currentScore
+            });
         }, this);
     },
 
     createAndRenderQuestion: function () {
-        // select the array of possible templates for the next question
-        // array either has 1 possible operation or several. If several are available, choose a random one.
-        const chosenOperation = this.problemType.length === 1 ? this.problemType[0] : this.problemType[Math.floor((Math.random() * this.problemType.length))];
         // each operation has a number of possible problems. Choose one at random
-        const templateIndex = Math.floor((Math.random() * chosenOperation.length));
+        const templateIndex = Math.floor((Math.random() * this.templatesArr.length));
+
+        // DEBUG - enable this to let you track what template is generating a question. Useful if you need to change the difficulty of a template
+        //console.log(this.templatesArr[templateIndex].type);
+
         // use ardentScript to generate a random problem of the given type
-        this.currentQuestionToSolve = instantiate(chosenOperation[templateIndex].template);
+        this.currentQuestionToSolve = instantiate(this.templatesArr[templateIndex].template);
+
+        // display the generated problem
         this.questionField.setText('Solve: ' + this.currentQuestionToSolve.questionText);
     },
 
     // creates an array of a number of lock images
     createLocksArr: function () {
-        for (let i = 0; i < this.startingLocks; i++) {
+        let startingLocks = this.currentLevel <= MAX_LOCKS ? this.currentLevel : MAX_LOCKS;
+        for (let i = 0; i < startingLocks; i++) {
             let xCoord = ((i % 2) === 0) ? 225 : 575;
             let yCoord = 175 + (150 * Math.floor(i / 2));
             this.locksArr.push(this.createLock(i, xCoord, yCoord));
@@ -209,9 +229,9 @@ var DoorScene = new Phaser.Class({
     createLock: function (index, xCoord, yCoord) {
         var config = {
             key: 'unlock',
-            //animation has 60 frames. Set end to 61 so it disappears once it 'unlocks'
-            frames: this.anims.generateFrameNumbers('lock-animation', { start: 0, end: 61 }),
-            frameRate: 60
+            frames: this.anims.generateFrameNumbers('lock-animation', { start: 0, end: 60 }),
+            frameRate: 60,
+            hideOnComplete:true
         };
         this.anims.create(config);
 
@@ -238,14 +258,19 @@ var DoorScene = new Phaser.Class({
 
     startTimer: function () {
         // game starts with 6 seconds on the clock, takes off 5 every round
-        this.startingTime = 60 - ((this.currentLevel - 1) * 5);
+        this.startingTime = MAX_STARTING_TIME - ((this.currentLevel - 1) * 5);
         this.roundTimer = this.time.delayedCall(this.startingTime * 1000, this.endGame, [], this);
         this.timerField.setText('Timer:' + this.startingTime);
     },
 
     endGame: function () {
         this.shutdown();
-        this.scene.launch('endScene', { score: this.currentScore, level: this.currentLevel });
+        this.scene.launch('endScene', {
+            operation: this.originalOperation,
+            difficulty: this.chosenDifficulty,
+            score: this.currentScore,
+            level: this.currentLevel
+        });
     }
 });
 
